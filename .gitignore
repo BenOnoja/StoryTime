@@ -7,3 +7,5 @@ node_modules/
 # Build output
 /bookstore/build/
 /backend/dist/
+/backend/.env
+/bookstore/src/components/.env
