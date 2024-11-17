@@ -3,9 +3,11 @@ node_modules/
 
 # Log files
 *.log
-
+*.env
 # Build output
 /bookstore/build/
+
+#ignore all .env files
 /backend/dist/
 /backend/.env
 /bookstore/src/components/.env
