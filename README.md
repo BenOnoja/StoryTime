@@ -1,5 +1,3 @@
-Here’s a `README.md` file template for your project:
-
 ---
 
 # Telegram Mini App - PERN Stack
