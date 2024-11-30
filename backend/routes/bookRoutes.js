@@ -1,20 +1,15 @@
-// bookRoutes.js
-
 const express = require('express');
 const poolb = require('../db').pool;
-const { upload } = require('../uploadConfig');
-const path = require('path');
-const fs = require('fs');
-
+const { put, del } = require('@vercel/blob');
+const multer = require('multer');
+const upload = multer();
 const router = express.Router();
 
-// Edit book details
 router.put('/edit-book/:id', upload.fields([{ name: 'file', maxCount: 1 }, { name: 'coverPhoto', maxCount: 1 }]), async (req, res) => {
     const { id } = req.params;
     const { title, description, price, genre, webtoons } = req.body;
 
     try {
-        // Fetch the current book details
         const { rows } = await poolb.query('SELECT * FROM books WHERE id = $1', [id]);
         if (rows.length === 0) return res.status(404).json({ message: 'Book not found' });
 
@@ -22,25 +17,26 @@ router.put('/edit-book/:id', upload.fields([{ name: 'file', maxCount: 1 }, { nam
         let filePath = book.file_path;
         let coverPhotoPath = book.cover_photo_path;
 
-        // Update file if a new one is provided
+        // Update the book file
         if (req.files['file']) {
             const newFile = req.files['file'][0];
-            filePath = `/uploads/books/${newFile.filename}`;
+            const newBookFile = await put(newFile.originalname, newFile.buffer, { contentType: newFile.mimetype });
+            filePath = newBookFile.url;
 
-            // Delete the old file if it exists
-            if (book.file_path) fs.unlinkSync(path.join(__dirname, '..', book.file_path));
+            // Delete the old file
+            if (book.file_path) await del(new URL(book.file_path).pathname);
         }
 
-        // Update cover photo if a new one is provided
+        // Update the cover photo
         if (req.files['coverPhoto']) {
             const newCoverPhoto = req.files['coverPhoto'][0];
-            coverPhotoPath = `/uploads/covers/${newCoverPhoto.filename}`;
+            const newCoverPhotoFile = await put(newCoverPhoto.originalname, newCoverPhoto.buffer, { contentType: newCoverPhoto.mimetype });
+            coverPhotoPath = newCoverPhotoFile.url;
 
-            // Delete the old cover photo if it exists
-            if (book.cover_photo_path) fs.unlinkSync(path.join(__dirname, '..', book.cover_photo_path));
+            // Delete the old cover photo
+            if (book.cover_photo_path) await del(new URL(book.cover_photo_path).pathname);
         }
 
-        // Update the book in the database
         const updateQuery = `
             UPDATE books
             SET title = $1, description = $2, price = $3, genre = $4, file_path = $5, cover_photo_path = $6, webtoons = $7
@@ -54,33 +50,5 @@ router.put('/edit-book/:id', upload.fields([{ name: 'file', maxCount: 1 }, { nam
         res.status(500).json({ message: 'Error updating book' });
     }
 });
-// Adjust the path t
-
-// Endpoint to fetch books by genre or webtoon
-router.get('/get-books-by-genre/:genre', async (req, res) => {
-  const { genre } = req.params;
-  try {
-    let query;
-    let values;
-
-    if (genre === 'webtoon') {
-      query = 'SELECT * FROM books WHERE webtoons = true';
-      values = [];
-    } else {
-      query = 'SELECT * FROM books WHERE genre = $1';
-      values = [genre];
-    }
-
-    const { rows } = await poolb.query(query, values);
-    res.status(200).json(rows);
-  } catch (error) {
-    console.error('Error fetching books by genre:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-module.exports = router;
-
-
 
 module.exports = router;

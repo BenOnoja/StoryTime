@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const { createTables } = require('./db');
-const { booksDir, coversDir } = require('./uploadConfig');
 
 // Import routes
 const uploadBookRoute = require('./routes/uploadBook');
@@ -23,11 +22,11 @@ const port = process.env.PORT || 5000;
 
 // CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'telegram-user-id'], // Allow telegram-user-id in headers
 };
-app.use(cors(corsOptions));
+app.options('*',cors());
 
 // Middleware
 app.use(express.json());
@@ -52,8 +51,6 @@ app.use('/api', progressRoute);
 // Other imports and middleware setup here
 app.use('/api', deleteBookRoute);
 // Serve static files (book files and cover photos)
-app.use('/uploads/books', express.static(booksDir));
-app.use('/uploads/covers', express.static(coversDir));
 
 
 // Start the server, etc.
