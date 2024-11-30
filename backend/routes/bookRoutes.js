@@ -54,6 +54,32 @@ router.put('/edit-book/:id', upload.fields([{ name: 'file', maxCount: 1 }, { nam
         res.status(500).json({ message: 'Error updating book' });
     }
 });
+// Adjust the path t
+
+// Endpoint to fetch books by genre or webtoon
+router.get('/get-books-by-genre/:genre', async (req, res) => {
+  const { genre } = req.params;
+  try {
+    let query;
+    let values;
+
+    if (genre === 'webtoon') {
+      query = 'SELECT * FROM books WHERE webtoons = true';
+      values = [];
+    } else {
+      query = 'SELECT * FROM books WHERE genre = $1';
+      values = [genre];
+    }
+
+    const { rows } = await poolb.query(query, values);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error fetching books by genre:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+module.exports = router;
 
 
 

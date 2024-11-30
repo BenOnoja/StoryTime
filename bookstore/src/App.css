@@ -36,27 +36,3 @@
     transform: rotate(360deg);
   }
 }
-.navbar {
-  margin-bottom: 2rem;
-}
-
-.card {
-  transition: transform 0.2s;
-}
-
-.card:hover {
-  transform: scale(1.05);
-}
-
-
-.container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px;
-}
-
-.footer {
-  margin-top: auto;
-}

@@ -60,13 +60,6 @@ const createTables = async () => {
                 has_paid BOOLEAN DEFAULT FALSE
             );
 
-            CREATE TABLE IF NOT EXISTS sellers (
-                user_id BIGINT PRIMARY KEY REFERENCES users(telegram_user_id),
-                description TEXT,
-                rating NUMERIC(2, 1),
-                total_sales INTEGER DEFAULT 0
-            );
-
             CREATE TABLE IF NOT EXISTS bookreviews (
                 id SERIAL PRIMARY KEY,
                 book_id INTEGER REFERENCES books(id),
